@@ -1,0 +1,73 @@
+                                                                                                     ASSIGNMENT 1 SETB 1
+                                                                                                                  Creation
+1.  create table actor(a_name varchar(20) primary key,role varchar(20),charges money,a_addr varchar(20));
+2. create table movie(m_name varchar(25) primary key,release_year int,budget money);
+3. create table producer(p_id int primary key,p_name varchar(20),p_addr varchar(20));
+4. create table movie_actor(m_name varchar(20) references movie,a_name varchar(20) references actor);
+5. create table movie_producer(m_name varchar(20) references movie,p_id int references producer);
+
+                                                                                                                   insertion 
+Actor Table:-
+insert into actor values
+('ritesh_deshmukh','hero',500000,'mumbai'),
+('prabhas','brother',300000,'chennai'),
+('salman','villan',600000,'mumbai'),
+('shahrukh','hero',500000,'bandra'),
+('akshay','father',250000,'pune');
+
+Movie Table:-
+insert into movie values('sholey',2004,3000000),
+('avengers',2017,5000000),
+('kalki',2015,4000000),
+('tiger',2017,2000000),(
+'bahubali',2016,6000000);
+
+Producer Table:-
+insert into producer values(101,'subhash_ghai','moshi'),
+(102,'rohit','mumbai'),
+(103,'ekta','banglore'),
+(104,'amit','pune'),
+(105,'ramesh','surat');
+
+Movie_Actor Table:-
+insert into movie_actor values('sholey','salman'),('sholey','akshay');
+insert into movie_actor values('avengers','ritesh_deshmukh'),('avengers','salman');
+insert into movie_actor values('kalki','prabhas');
+insert into movie_actor values('tiger','salman'),('tiger','akshay');
+insert into movie_actor values('bahubali','prabhas');
+
+Movie_ Producer Table :-
+insert into movie_producer values('kalki',101),(
+'sholey',102),
+('sholey',101),(
+'avengers',103),
+('avengers',102),
+('tiger',104),
+('bahubali',105);
+
+                                                                                                                   Queries
+1. select actor.a_name,movie.m_name from movie,actor,movie_actor
+where movie.m_name=movie_actor.m_name
+and actor.a_name=movie_actor.a_name;
+
+2. select movie.m_name from movie,producer,movie_producer
+where movie.m_name=movie_producer.m_name
+and producer.p_id=movie_producer.p_id and p_name='subhash_ghai';
+
+3. select * from movie where budget=(select min(budget)from movie);
+
+4. select m_name from movie where release_year > 2015;
+
+5. select count(*),sum (budget) from movie where release_year=2017;
+
+6. 
+
+7. select m_name from movie_producer group by m_name having count(p_id)>1;
+
+8. select a_name from actor where role='villan';
+
+9. select distinct(a_name)from movie_actor
+where m_name in (select m_name from movie_actor where a_name ='ritesh_deshmukh')
+and a_name<>'ritesh_deshmukh';
+
+10. select count(*) from movie_actor where m_name='sholey';
