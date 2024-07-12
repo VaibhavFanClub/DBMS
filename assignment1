@@ -282,16 +282,181 @@ HAVING COUNT(b.b_no) = (
 
 -------------------------------------- set B 1 ------------------------------------------
 
-assignment1=# create table actor(a_name varchar(20) primary key, role char(20), charges money, a_address varchar(20));
+assignment1=# create table actor(a_name varchar(20) primary key,role varchar(20),charges money,a_addr varchar(20));
 CREATE TABLE
-assignment1=# create table movie(m_name varchar(25) primary key, release_year int, budget money);
+assignment1=# create table movie(m_name varchar(25) primary key,release_year int,budget money);
 CREATE TABLE
-assignment1=# create table producer(pid int primary key, p_name char(30), p_address varchar(20));
+assignment1=# create table producer(p_id int primary key,p_name varchar(20),p_addr varchar(20));
 CREATE TABLE
-assignment1=# create table m_p(m_name varchar(25) references movie, pid int references producer);
+assignment1=# create table movie_actor(m_name varchar(20) references movie,a_name varchar(20) references actor);
 CREATE TABLE
-assignment1=# create table m_a(m_name varchar(25) references movie, a_name varchar(20) references actor);
+assignment1=# create table movie_producer(m_name varchar(20) references movie,p_id int references producer);
 CREATE TABLE
+assignment1=# insert into actor values
+assignment1-# ('ritesh_deshmukh','hero',500000,'mumbai'),
+assignment1-# ('prabhas','brother',300000,'chennai'),
+assignment1-# ('salman','villan',600000,'mumbai'),
+assignment1-# ('shahrukh','hero',500000,'bandra'),
+assignment1-# ('akshay','father',250000,'pune');
+INSERT 0 5
+assignment1=# insert into movie values('sholey',2004,3000000),
+assignment1-# ('avengers',2017,5000000),
+assignment1-# ('kalki',2015,4000000),
+assignment1-# ('tiger',2017,2000000),(
+assignment1(# 'bahubali',2016,6000000);
+INSERT 0 5
+assignment1=# insert into producer values(101,'subhash_ghai','moshi'),
+assignment1-# (102,'rohit','mumbai'),
+assignment1-# (103,'ekta','banglore'),
+assignment1-# (104,'amit','pune'),
+assignment1-# (105,'ramesh','surat');
+INSERT 0 5
+assignment1=# insert into movie_actor values('sholey','salman'),('sholey','akshay');
+INSERT 0 2
+assignment1=# insert into movie_actor values('avengers','ritesh_deshmukh'),('avengers','salman');
+INSERT 0 2
+assignment1=# insert into movie_actor values('kalki','prabhas');
+INSERT 0 1
+assignment1=# insert into movie_actor values('tiger','salman'),('tiger','akshay');
+INSERT 0 2
+assignment1=# insert into movie_actor values('bahubali','prabhas');
+INSERT 0 1
+assignment1=# insert into movie_producer values('kalki',101),(
+assignment1(# 'sholey',102),
+assignment1-# ('sholey',101),(
+assignment1(# 'avengers',103),
+assignment1-# ('avengers',102),
+assignment1-# ('tiger',104),
+assignment1-# ('bahubali',105);
+INSERT 0 7
+assignment1=# 
+assignment1=# 
+assignment1=# select * from actor;
+     a_name      |  role   |   charges   | a_addr  
+-----------------+---------+-------------+---------
+ ritesh_deshmukh | hero    | ₹500,000.00 | mumbai
+ prabhas         | brother | ₹300,000.00 | chennai
+ salman          | villan  | ₹600,000.00 | mumbai
+ shahrukh        | hero    | ₹500,000.00 | bandra
+ akshay          | father  | ₹250,000.00 | pune
+(5 rows)
 
+assignment1=# select * from movie;
+  m_name  | release_year |    budget     
+----------+--------------+---------------
+ sholey   |         2004 | ₹3,000,000.00
+ avengers |         2017 | ₹5,000,000.00
+ kalki    |         2015 | ₹4,000,000.00
+ tiger    |         2017 | ₹2,000,000.00
+ bahubali |         2016 | ₹6,000,000.00
+(5 rows)
+
+assignment1=# select * from producer;
+ p_id |    p_name    |  p_addr  
+------+--------------+----------
+  101 | subhash_ghai | moshi
+  102 | rohit        | mumbai
+  103 | ekta         | banglore
+  104 | amit         | pune
+  105 | ramesh       | surat
+(5 rows)
+
+assignment1=# select * from movie_actor;
+  m_name  |     a_name      
+----------+-----------------
+ sholey   | salman
+ sholey   | akshay
+ avengers | ritesh_deshmukh
+ avengers | salman
+ kalki    | prabhas
+ tiger    | salman
+ tiger    | akshay
+ bahubali | prabhas
+(8 rows)
+
+assignment1=# select * from movie_producer;
+  m_name  | p_id 
+----------+------
+ kalki    |  101
+ sholey   |  102
+ sholey   |  101
+ avengers |  103
+ avengers |  102
+ tiger    |  104
+ bahubali |  105
+(7 rows)
+
+assignment1=# 
+assignment1=# 
+assignment1=# select actor.a_name,movie.m_name from movie,actor,movie_actor
+assignment1-# where movie.m_name=movie_actor.m_name
+assignment1-# and actor.a_name=movie_actor.a_name;
+     a_name      |  m_name  
+-----------------+----------
+ salman          | sholey
+ akshay          | sholey
+ ritesh_deshmukh | avengers
+ salman          | avengers
+ prabhas         | kalki
+ salman          | tiger
+ akshay          | tiger
+ prabhas         | bahubali
+(8 rows)
+
+assignment1=# select movie.m_name from movie,producer,movie_producer
+assignment1-# where movie.m_name=movie_producer.m_name
+assignment1-# and producer.p_id=movie_producer.p_id and p_name='subhash_ghai';
+ m_name 
+--------
+ kalki
+ sholey
+(2 rows)
+
+assignment1=# select * from movie where budget=(select min(budget)from movie);
+ m_name | release_year |    budget     
+--------+--------------+---------------
+ tiger  |         2017 | ₹2,000,000.00
+(1 row)
+
+assignment1=# select m_name from movie where release_year > 2015;
+  m_name  
+----------
+ avengers
+ tiger
+ bahubali
+(3 rows)
+
+assignment1=# select count(*),sum (budget) from movie where release_year=2017;
+ count |      sum      
+-------+---------------
+     2 | ₹7,000,000.00
+(1 row)
+
+assignment1=# select m_name from movie_producer group by m_name having count(p_id)>1;
+  m_name  
+----------
+ sholey
+ avengers
+(2 rows)
+
+assignment1=# select a_name from actor where role='villan';
+ a_name 
+--------
+ salman
+(1 row)
+
+assignment1=# select distinct(a_name)from movie_actor
+assignment1-# where m_name in (select m_name from movie_actor where a_name ='ritesh_deshmukh')
+assignment1-# and a_name<>'ritesh_deshmukh';
+ a_name 
+--------
+ salman
+(1 row)
+
+assignment1=# select count(*) from movie_actor where m_name='sholey';
+ count 
+-------
+     2
+(1 row)
 
 
