@@ -460,3 +460,194 @@ assignment1=# select count(*) from movie_actor where m_name='sholey';
 (1 row)
 
 
+
+
+
+-------------------------------------- set B 2 ------------------------------------------
+
+
+assignment1=# create table branch(bid int primary key, brname char(30), brcity char(10));
+CREATE TABLE
+assignment1=# create table customer(cno int primary key, cname char(20), caddr char(35), city char(20));
+CREATE TABLE
+assignment1=# create table l_a(lno int primary key, l_a_require money, l_a_approved money, l_date date);
+CREATE TABLE
+assignment1=# create table bcl_ternary(bid int references branch, cno int references customer, lno int references l_a);
+CREATE TABLE
+
+assignment1=# insert into branch values(1, 'Nagar', 'Nagar'),(2, 'Karve Nagar','Pune'),(3,'ShivajiNagar','Pune'),(4, 'PCMC', 'Pune');
+INSERT 0 4
+
+assignment1=# insert into customer values(101, 'Patil', 'Bharatmata chouk', 'Moshi'),(102, 'Kale', 'Pipe line road', 'Nagar'),(103, 'Kate', 'Pradhikaran', 'Nigdi'),(104, 'Shilimkar', 'Nana peth', 'Pune'),(105, 'Pandey', 'Shivaji Nagar', 'Pune'),(106, 'Dhere', 'Sadashiv Peth', 'Pune'),(107, 'Dhore', 'Karve Nagar', 'Pune');
+INSERT 0 7
+
+assignment1=# insert into l_a values(1001, 50000, 35000, now());
+INSERT 0 1
+
+assignment1=# insert into l_a values(1002, 500000, 350000, now()),(1003, 200000, 100000, now()),(1004, 1000000, 3500000, now()),(1005, 300000, 120000, now()),(1006, 200000, 120000, now()),(1007, 70000, 30000, now());
+INSERT 0 6
+
+assignment1=# select * from branch;
+ bid |             brname             |   brcity   
+-----+--------------------------------+------------
+   1 | Nagar                          | Nagar     
+   2 | Karve Nagar                    | Pune      
+   3 | ShivajiNagar                   | Pune      
+   4 | PCMC                           | Pune      
+(4 rows)
+
+assignment1=# select * from customer;
+ cno |        cname         |                caddr                |         city         
+-----+----------------------+-------------------------------------+----------------------
+ 101 | Patil                | Bharatmata chouk                    | Moshi               
+ 102 | Kale                 | Pipe line road                      | Nagar               
+ 103 | Kate                 | Pradhikaran                         | Nigdi               
+ 104 | Shilimkar            | Nana peth                           | Pune                
+ 105 | Pandey               | Shivaji Nagar                       | Pune                
+ 106 | Dhere                | Sadashiv Peth                       | Pune                
+ 107 | Dhore                | Karve Nagar                         | Pune                
+(7 rows)
+
+assignment1=# select * from l_a;
+ lno  |  l_a_require  | l_a_approved  |   l_date   
+------+---------------+---------------+------------
+ 1001 |    ₹50,000.00 |    ₹35,000.00 | 2024-07-19
+ 1002 |   ₹500,000.00 |   ₹350,000.00 | 2024-07-19
+ 1003 |   ₹200,000.00 |   ₹100,000.00 | 2024-07-19
+ 1004 | ₹1,000,000.00 | ₹3,500,000.00 | 2024-07-19
+ 1005 |   ₹300,000.00 |   ₹120,000.00 | 2024-07-19
+ 1006 |   ₹200,000.00 |   ₹120,000.00 | 2024-07-19
+ 1007 |    ₹70,000.00 |    ₹30,000.00 | 2024-07-19
+(7 rows)
+
+assignment1=# insert into bcl_ternary values(1, 102, 1007),(2, 107, 1006),(2,104,1005),(3, 105, 1004),(3, 106, 1003),(4, 103, 1002),(4, 101, 1001);
+INSERT 0 7
+
+assignment1=# select * from bcl_ternary;
+ bid | cno | lno  
+-----+-----+------
+   1 | 102 | 1007
+   2 | 107 | 1006
+   2 | 104 | 1005
+   3 | 105 | 1004
+   3 | 106 | 1003
+   4 | 103 | 1002
+   4 | 101 | 1001
+(7 rows)
+
+assignment1=# select sum(l_a_approved) as total from l_a where lno in(select lno from bcl_ternary where bid = (select bid from branch where brname = 'Nagar'));
+   total    
+------------
+ ₹30,000.00
+(1 row)
+                                               ^
+assignment1=# select cname from customer where cno in(select cno from bcl_ternary where bid = (select bid from branch where brname = 'Karve Nagar'));
+        cname         
+----------------------
+ Shilimkar           
+ Dhore               
+(2 rows)
+
+assignment1=# select cname from customer c, bcl_ternary t, branch b where c.cno = t.cno and b.bid = t.bid and city = brcity;
+        cname         
+----------------------
+ Kale                
+ Dhore               
+ Shilimkar           
+ Pandey              
+ Dhere               
+(5 rows)
+
+assignment1=# select cname from customer where cno in(select cno from bcl_ternary where lno in(select lno from l_a where l_a_approved < l_a_require));
+        cname         
+----------------------
+ Patil               
+ Kale                
+ Kate                
+ Shilimkar           
+ Dhere               
+ Dhore               
+(6 rows)
+
+assignment1=# select cname, brname from customer c, branch b, l_a l, bcl_ternary t where c.cno = t.cno and b.bid = t.bid and l.lno = t.lno and extract(month from l_date) = 07; 
+        cname         |             brname             
+----------------------+--------------------------------
+ Kale                 | Nagar                         
+ Dhore                | Karve Nagar                   
+ Shilimkar            | Karve Nagar                   
+ Pandey               | ShivajiNagar                  
+ Dhere                | ShivajiNagar                  
+ Kate                 | PCMC                          
+ Patil                | PCMC                          
+(7 rows)
+
+assignment1=# select cname from customer where cno in(select cno from bcl_ternary where lno in(select lno from l_a where l_a_require::numeric::int > 100000));
+        cname         
+----------------------
+ Kate                
+ Shilimkar           
+ Pandey              
+ Dhere               
+ Dhore               
+(5 rows)
+
+assignment1=# select max(l_a_approved) from l_a;
+      max      
+---------------
+ ₹3,500,000.00
+(1 row)
+
+assignment1=# select count(cname) from customer where cno in(select cno from bcl_ternary where bid = (select bid from branch where brname = 'ShivajiNagar'));
+ count 
+-------
+     2
+(1 row)
+
+assignment1=# select cname from customer where cno in(select cno from bcl_ternary where lno in(select lno from l_a where l_a_require::numeric::int between 200000 and 400000));
+        cname         
+----------------------
+ Dhere               
+ Shilimkar           
+ Dhore               
+(3 rows)
+
+assignment1=# select brname, cname from branch b, customer c, bcl_ternary t where b.bid = t.bid and c.cno = t.cno order by brname, cname;
+             brname             |        cname         
+--------------------------------+----------------------
+ Karve Nagar                    | Dhore               
+ Karve Nagar                    | Shilimkar           
+ Nagar                          | Kale                
+ PCMC                           | Kate                
+ PCMC                           | Patil               
+ ShivajiNagar                   | Dhere               
+ ShivajiNagar                   | Pandey              
+(7 rows)
+
+
+
+
+----------------------------------------------- set c 1 -------------------------------------------
+
+assignment1=# create table cities(city char(20) primary key, state char(20));
+CREATE TABLE
+assignment1=# create table warehouse(wid int primary key, wname char(30), location char(20), city char(20) references cities);
+CREATE TABLE
+assignment1=# create table store(sid int primary key, sname char(20), location_city char(20), wid int references warehouse);
+CREATE TABLE
+assignment1=# create table cust(cno int primary key, cname char(50), addr varchar(50), cu_city char(20));
+CREATE TABLE
+assignment1=# create table orders(ono int primary key, odate date, cno int references cust);
+CREATE TABLE
+assignment1=# create table items(ino int primary key, description text, weight decimal(5,2), cost decimal(5,2));
+CREATE TABLE
+assignment1=# create table i_o(ino int references items, ono int references orders);
+CREATE TABLE
+assignment1=# create table s_i(sid int references store, ino int references items);
+CREATE TABLE
+
+assignment1=# insert into cities values('Pune','Maharashtra'),('Akurdi','Maharashtra'),('Ludiana','Punjab'),('Hoskate','Keral'),('Chinchwad','Maharashtra'),('Pimpri','Maharashtra'),('Nagar','Maharashtra');
+INSERT 0 7
+
+assignment1=# insert into warehouse values(1, 'W1', 'MIDC', 'Pune'),(2, 'W2', 'MIDC', 'Pune');
+INSERT 0 2
+
