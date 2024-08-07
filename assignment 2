@@ -1,0 +1,268 @@
+--------------------------------------------------- set a 1 ----------------------------------------------------------
+
+assignment1=# CREATE TABLE Project (pno INTEGER PRIMARY KEY, pname CHAR(30) NOT NULL, ptype CHAR(20), duration INTEGER CHECK (duration > 0));
+CREATE TABLE
+
+assignment1=# CREATE TABLE Employee (eno INTEGER PRIMARY KEY, ename CHAR(20), qualification CHAR(15), joining_date DATE);
+CREATE TABLE
+
+assignment1=# CREATE TABLE Project_Employee (pno INTEGER REFERENCES Project, eno INTEGER REFERENCES Employee, start_date DATE, no_of_hours_worked INTEGER);
+CREATE TABLE
+
+assignment1=# INSERT INTO Project (pno, pname, ptype, duration) VALUES(1, 'ERP', 'Software', 12),(2, 'CRM', 'Software', 8),(3, 'HRMS', 'Software', 4),(4, 'E-Commerce', 'Web', 10);
+INSERT 0 4
+
+assignment1=# INSERT INTO Employee (eno, ename, qualification, joining_date) VALUES(1, 'Rajesh Kumar', 'MCA', '2020-01-15'),(2, 'Aditi Sharma', 'B.Tech', '2019-06-01'),(3, 'Vijay Mehta', 'MCA', '2021-03-10'),(4, 'Pooja Gupta', 'MBA', '2018-11-20'),(5, 'Suresh Rathi', 'B.Com', '2020-05-05');
+INSERT 0 5
+
+assignment1=# INSERT INTO Project_Employee (pno, eno, start_date, no_of_hours_worked) VALUES(1, 1, '2020-02-01', 350),(1, 2, '2020-03-01', 200),(2, 1, '2020-04-01', 150),(1, 3, '2020-01-20', 400),(4, 4, '2020-07-01', 500),(3, 5, '2021-05-01', 100);
+INSERT 0 6
+
+assignment1=# CREATE VIEW A2A1V1 AS SELECT e.* FROM Employee e, Project_Employee pe, Project p WHERE e.eno = pe.eno AND pe.pno = p.pno AND p.pname = 'ERP';
+CREATE VIEW
+
+assignment1=# select * from A2A1V1;
+ eno |        ename         |  qualification  | joining_date 
+-----+----------------------+-----------------+--------------
+   1 | Rajesh Kumar         | MCA             | 2020-01-15
+   2 | Aditi Sharma         | B.Tech          | 2019-06-01
+   3 | Vijay Mehta          | MCA             | 2021-03-10
+(3 rows)
+
+assignment1=# CREATE VIEW A2A1V2 AS SELECT p.*, pe.start_date FROM Project p, Project_Employee pe WHERE p.pno = pe.pno AND p.duration > 6 ORDER BY pe.start_date;
+CREATE VIEW
+
+assignment1=# select * from A2A1V2;
+ pno |             pname              |        ptype         | duration | start_date 
+-----+--------------------------------+----------------------+----------+------------
+   1 | ERP                            | Software             |       12 | 2020-01-20
+   1 | ERP                            | Software             |       12 | 2020-02-01
+   1 | ERP                            | Software             |       12 | 2020-03-01
+   2 | CRM                            | Software             |        8 | 2020-04-01
+   4 | E-Commerce                     | Web                  |       10 | 2020-07-01
+(5 rows)
+
+assignment1=# CREATE VIEW A2A1V3 AS SELECT * FROM Employee WHERE qualification = 'MCA';
+CREATE VIEW
+
+assignment1=# select * from A2A1V3;
+ eno |        ename         |  qualification  | joining_date 
+-----+----------------------+-----------------+--------------
+   1 | Rajesh Kumar         | MCA             | 2020-01-15
+   3 | Vijay Mehta          | MCA             | 2021-03-10
+(2 rows)
+
+assignment1=# CREATE VIEW Employees_With_Over_300_Hours AS SELECT e.ename, p.pname FROM Employee e, Project_Employee pe, Project p WHERE e.eno = pe.eno AND pe.pno = p.pno AND pe.no_of_hours_worked > 300;
+CREATE VIEW
+
+assignment1=# select * from Employees_With_Over_300_Hours;
+        ename         |             pname              
+----------------------+--------------------------------
+ Rajesh Kumar         | ERP                           
+ Vijay Mehta          | ERP                           
+ Pooja Gupta          | E-Commerce                    
+(3 rows)
+
+
+
+
+--------------------------------------------------- set a 2 ----------------------------------------------------------
+
+assignment1=# INSERT INTO Area (aname, atype) VALUES('Hadapsar', 'urban'),('Kothrud', 'urban'),('Shivaji Nagar', 'rural'),('Pune', 'urban'),('Alandi', 'rural');
+INSERT 0 5
+
+assignment1=# INSERT INTO Person (pno, pname, bdate, income, aname) VALUES(1, 'Rahul Tupe', '1980-06-15', 15000, 'Hadapsar'),(2, 'Sita Tupe', '1975-03-12', 9000, 'Hadapsar'),(3, 'Anil Joshi', '1955-05-20', 12000, 'Kothrud'),(4, 'Kiran Shinde', '1960-08-25', 5000, 'Shivaji Nagar'),(5, 'Sunil Patil', '1950-09-10', 20000, 'Alandi'),(6, 'Geeta Mehta', '1945-02-01', 30000, 'Pune'),(7, 'Pooja Joshi', '1972-12-30', 11000, 'Kothrud'),(8, 'Vijay Patil', '1962-04-05', 25000, 'Hadapsar');
+INSERT 0 8
+
+assignment1=# CREATE VIEW A2A2V1 AS SELECT pname FROM Person WHERE pname LIKE '%Tupe%' AND aname = 'Hadapsar';
+CREATE VIEW
+assignment1=# select * from A2A2V1;
+   pname    
+------------
+ Rahul Tupe
+ Sita Tupe
+(2 rows)
+
+assignment1=# CREATE VIEW A2A2V2 AS SELECT COUNT(*) AS count FROM Person WHERE aname IN (SELECT aname FROM Area WHERE atype = 'rural') AND income > '10000';
+CREATE VIEW
+
+assignment1=# select * from A2A2V2;
+ count 
+-------
+     1
+(1 row)
+
+assignment1=# CREATE VIEW A2A2V3 AS SELECT a.aname, COUNT(p.pno) AS count FROM Area a, Person p WHERE a.aname = p.aname AND EXTRACT(YEAR FROM AGE(p.bdate)) > 60 GROUP BY a.aname;
+CREATE VIEW
+
+assignment1=# select * from A2A2V3;
+     aname     | count 
+---------------+-------
+ Shivaji Nagar |     1
+ Pune          |     1
+ Kothrud       |     1
+ Alandi        |     1
+ Hadapsar      |     1
+(5 rows)
+
+assignment1=# CREATE VIEW A2A2V4 AS SELECT a.aname, p.pname, p.income FROM Area a, Person p WHERE a.aname = p.aname AND p.income = (SELECT MAX(income) FROM Person WHERE aname = a.aname) ORDER BY a.aname;
+CREATE VIEW
+
+assignment1=# select * from A2A2V4;
+     aname     |    pname     |   income   
+---------------+--------------+------------
+ Alandi        | Sunil Patil  | ₹20,000.00
+ Hadapsar      | Vijay Patil  | ₹25,000.00
+ Kothrud       | Anil Joshi   | ₹12,000.00
+ Pune          | Geeta Mehta  | ₹30,000.00
+ Shivaji Nagar | Kiran Shinde |  ₹5,000.00
+(5 rows)
+
+
+
+
+--------------------------------------------------- set b 1 ----------------------------------------------------------
+
+
+assignment1=# INSERT INTO Bus (bus_no, capacity, depot_name) VALUES(10, 50, 'Kothrud'),(11, 45, 'Swargate'),(12, 55, 'Hadapsar'),(13, 40, 'Kothrud'),(14, 60, 'Nigdi');
+INSERT 0 5
+
+assignment1=# INSERT INTO Route (route_no, source, destination, no_of_stations) VALUES(1, 'Deccan', 'Katraj', 15),(2, 'Swargate', 'Nigdi', 20),(3, 'Hadapsar', 'Hinjewadi', 18),(4, 'Kothrud', 'Viman Nagar', 22),(5, 'Deccan', 'Vishrantwadi', 17);
+INSERT 0 5
+
+assignment1=# INSERT INTO Driver (driver_no, driver_name, license_no, address, d_age, salary) VALUES(1, 'Rajesh Kumar', 101, 'Pune', 45, 35000),(2, 'Priya Singh', 102, 'Mumbai', 38, 32000),(3, 'Amit Sharma', 103, 'Nashik', 42, 34000),(4, 'Neha Patel', 104, 'Nagpur', 35, 31000),(5, 'Suresh Verma', 105, 'Pune', 50, 38000);
+INSERT 0 5
+
+assignment1=# INSERT INTO Bus_Driver (bus_no, driver_no, date_of_duty_allotted, shift) VALUES(10, 1, '2020-06-15', 2),(10, 2, '2020-06-20', 1),(11, 3, '2020-06-25', 2),(12, 4, '2020-07-01', 1),(13, 5, '2020-06-10', 2);
+INSERT 0 5
+
+assignment1=# INSERT INTO Bus_Route (bus_no, route_no) VALUES(10, 1),(11, 2),(12, 3),(13, 4),(14, 5);
+INSERT 0 5
+
+assignment1=# CREATE VIEW A2B1V1 AS SELECT * FROM Driver WHERE d_age > 40;
+CREATE VIEW
+
+assignment1=# select * from A2B1V1;
+ driver_no |     driver_name      | license_no |       address        | d_age | salary 
+-----------+----------------------+------------+----------------------+-------+--------
+         1 | Rajesh Kumar         |        101 | Pune                 |    45 |  35000
+         3 | Amit Sharma          |        103 | Nashik               |    42 |  34000
+         5 | Suresh Verma         |        105 | Pune                 |    50 |  38000
+(3 rows)
+
+assignment1=# CREATE VIEW A2B1V2 AS SELECT b.*, d.*, bd.date_of_duty_allotted FROM Bus b, Bus_Driver bd, Driver d WHERE b.bus_no = bd.bus_no AND bd.driver_no = d.driver_no AND b.bus_no = 10 AND bd.shift = 2;
+CREATE VIEW
+
+assignment1=# select * from A2B1V2;
+bus_no | capacity | depot_name | driver_no |     driver_name      | license_no |       address        | d_age | salary | date_of_duty_allotted 
+--------+----------+------------+-----------+----------------------+------------+----------------------+-------+--------+-----------------------
+    10 |       50 | Kothrud    |         1 | Rajesh Kumar         |        101 | Pune                 |    45 |  35000 | 2020-06-15
+(1 row)
+
+assignment1=# CREATE VIEW A2B1V3 AS SELECT d.driver_name, bd.shift FROM Driver d, Bus_Driver bd, Bus b WHERE d.driver_no = bd.driver_no AND bd.bus_no = b.bus_no AND b.depot_name = 'Kothrud' AND bd.date_of_duty_allotted BETWEEN '2020-06-01' AND '2020-07-01';
+CREATE VIEW
+
+assignment1=# select * from A2B1V3;
+     driver_name      | shift 
+----------------------+-------
+ Rajesh Kumar         |     2
+ Priya Singh          |     1
+ Suresh Verma         |     2
+(3 rows)
+
+assignment1=# CREATE VIEW A2B1V4 AS SELECT b.bus_no FROM Bus b, Bus_Route br, Route r WHERE b.bus_no = br.bus_no AND br.route_no = r.route_no AND r.source = 'Deccan' AND r.destination = 'Katraj';
+CREATE VIEW
+
+assignment1=# select * from A2B1V4;
+ bus_no 
+--------
+     10
+(1 row)
+
+
+
+
+--------------------------------------------------- set b 2 ----------------------------------------------------------
+
+CREATE TABLE Branch (
+    br_id INTEGER PRIMARY KEY,
+    br_name CHAR(30),
+    br_city CHAR(10)
+);
+
+CREATE TABLE Customer (
+    cno INTEGER PRIMARY KEY,
+    c_name CHAR(20),
+    caddr CHAR(35),
+    city CHAR(20)
+);
+
+CREATE TABLE Loan_application (
+    lno INTEGER PRIMARY KEY,
+    l_amt_required MONEY CHECK (l_amt_required > '0'),
+    l_amt_approved MONEY,
+    l_date DATE
+);
+
+CREATE TABLE Ternary (
+    br_id INTEGER REFERENCES Branch,
+    cno INTEGER REFERENCES Customer,
+    lno INTEGER REFERENCES Loan_application
+);
+
+assignment1=# INSERT INTO Branch (br_id, br_name, br_city) VALUES(1, 'Koregaon Park Branch', 'Pune'),(2, 'Bandra Branch', 'Mumbai'),(3, 'MG Road Branch', 'Bangalore'),(4, 'Connaught Place Branch', 'Delhi'),(5, 'Anna Nagar Branch', 'Chennai');
+INSERT 0 5
+
+assignment1=# INSERT INTO Customer (cno, c_name, caddr, city) VALUES(101, 'Rahul Sharma', '123 ABC Street', 'Pune'),(102, 'Priya Patel', '456 XYZ Road', 'Mumbai'),(103, 'Amit Kumar', '789 PQR Avenue', 'Bangalore'),(104, 'Sneha Gupta', '321 LMN Lane', 'Delhi'),(105, 'Karthik Rajan', '654 JKL Street', 'Chennai');
+INSERT 0 5
+
+assignment1=# INSERT INTO Loan_application (lno, l_amt_required, l_amt_approved, l_date) VALUES(1001, 500000, 450000, '2019-07-15'),(1002, 3500000, 3000000, '2019-09-20'),(1003, 200000, 200000, '2019-11-30'),(1004, 4000000, 3500000, '2020-01-10'),(1005, 80000, 75000, '2020-03-25');
+INSERT 0 5
+
+assignment1=# INSERT INTO Ternary (br_id, cno, lno) VALUES(1, 101, 1001),(2, 102, 1002),(3, 103, 1003),(4, 104, 1004),(5, 105, 1005);
+INSERT 0 5
+
+assignment1=# CREATE VIEW A2B2V1 AS SELECT c.*, l.l_amt_required, l.l_amt_approved FROM Customer c, Loan_application l, Ternary t WHERE c.cno = t.cno AND l.lno = t.lno AND l.l_amt_approved < l.l_amt_required;
+CREATE VIEW
+
+assignment1=# select * from A2B2V1;
+ cno |        c_name        |                caddr                |         city         | l_amt_required | l_amt_approved 
+-----+----------------------+-------------------------------------+----------------------+----------------+----------------
+ 101 | Rahul Sharma         | 123 ABC Street                      | Pune                 |    ₹500,000.00 |    ₹450,000.00
+ 102 | Priya Patel          | 456 XYZ Road                        | Mumbai               |  ₹3,500,000.00 |  ₹3,000,000.00
+ 104 | Sneha Gupta          | 321 LMN Lane                        | Delhi                |  ₹4,000,000.00 |  ₹3,500,000.00
+ 105 | Karthik Rajan        | 654 JKL Street                      | Chennai              |     ₹80,000.00 |     ₹75,000.00
+(4 rows)
+
+assignment1=# CREATE VIEW A2B2V2 AS SELECT b.br_id, b.br_name, SUM(l.l_amt_approved) as total_approved FROM Branch b, Loan_application l, Ternary t WHERE b.br_id = t.br_id AND l.lno = t.lno AND l.l_date BETWEEN '2019-06-01' AND '2020-06-01' GROUP BY b.br_id, b.br_name;
+CREATE VIEW
+
+assignment1=# select * from A2B2V2;
+ br_id |            br_name             | total_approved 
+-------+--------------------------------+----------------
+     1 | Koregaon Park Branch           |    ₹450,000.00
+     2 | Bandra Branch                  |  ₹3,000,000.00
+     3 | MG Road Branch                 |    ₹200,000.00
+     4 | Connaught Place Branch         |  ₹3,500,000.00
+     5 | Anna Nagar Branch              |     ₹75,000.00
+(5 rows)
+
+assignment1=# CREATE VIEW A2B2V3 AS SELECT b.br_id, b.br_name, COUNT(DISTINCT c.cno) as high_loan_customers FROM Branch b, Customer c, Loan_application l, Ternary t WHERE b.br_id = t.br_id AND c.cno = t.cno AND l.lno = t.lno AND l.l_amt_required > '3000000' GROUP BY b.br_id, b.br_name;
+CREATE VIEW
+
+assignment1=# select * from A2B2V3;
+ br_id |            br_name             | high_loan_customers 
+-------+--------------------------------+---------------------
+     2 | Bandra Branch                  |                   1
+     4 | Connaught Place Branch         |                   1
+(2 rows)
+
+assignment1=# CREATE VIEW A2B2V4 AS SELECT b.br_id, b.br_name, c.c_name FROM Branch b, Customer c, Loan_application l, Ternary t WHERE b.br_id = t.br_id AND c.cno = t.cno AND l.lno = t.lno AND l.l_amt_required < '100000' ORDER BY b.br_id, c.c_name;
+CREATE VIEW
+
+assignment1=# select * from A2B2V4;
+ br_id |            br_name             |        c_name        
+-------+--------------------------------+----------------------
+     5 | Anna Nagar Branch              | Karthik Rajan       
+(1 row)
+
