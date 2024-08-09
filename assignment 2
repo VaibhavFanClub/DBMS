@@ -266,3 +266,95 @@ assignment1=# select * from A2B2V4;
      5 | Anna Nagar Branch              | Karthik Rajan       
 (1 row)
 
+
+
+
+
+------------------------------------------------------ set c 1 -------------------------------------------------------------
+
+
+assignment1=# CREATE TABLE Dept (deptno VARCHAR(10) PRIMARY KEY,dept_name CHAR(20));
+CREATE TABLE
+
+assignment1=# CREATE TABLE Salesman (sno INTEGER PRIMARY KEY,s_name VARCHAR(30) NOT NULL,start_year INTEGER,deptno VARCHAR(10) REFERENCES Dept ON DELETE CASCADE);
+CREATE TABLE
+
+assignment1=# CREATE TABLE Trip (tno INTEGER PRIMARY KEY,from_city CHAR(20),to_city CHAR(20),departure_date DATE,return_date DATE,sno INTEGER REFERENCES Salesman ON DELETE CASCADE);
+CREATE TABLE
+
+assignment1=# CREATE TABLE Expense (eid INTEGER PRIMARY KEY,amount MONEY,tno INTEGER REFERENCES trip ON DELETE CASCADE);
+CREATE TABLE
+
+assignment1=#  INSERT INTO Dept (deptno, dept_name) VALUES('D001', 'Sales'),('D002', 'Marketing'),('D003', 'Finance');
+INSERT 0 3
+
+assignment1=# INSERT INTO Salesman (sno, s_name, start_year, deptno) VALUES(1, 'Mr.Pawar', 2018, 'D001'),(2, 'Mr. Kale', 2019, 'D001'),(3, 'Ms. Joshi', 2020, 'D002'),(4, 'Mr. Sharma', 2017, 'D003');
+INSERT 0 4
+
+assignment1=# INSERT INTO Trip (tno, from_city, to_city, departure_date, return_date, sno) VALUES(101, 'Pune', 'Mumbai', '2023-06-10', '2023-06-12', 1),(102, 'Mumbai', 'Delhi', '2023-07-15', '2023-07-18', 1),(103, 'Pune', 'Mumbai', '2023-06-20', '2023-06-22', 2),(104, 'Pune', 'Mumbai', '2023-06-25', '2023-06-27', 2),(105, 'Bangalore', 'Chennai', '2023-08-05', '2023-08-07', 3);
+INSERT 0 5
+
+assignment1=# INSERT INTO Expense (eid, amount, tno) VALUES(1001, 5000, 101),(1002, 15000, 102),(1003, 6000, 103),(1004, 5500, 104),(1005, 8000, 105);
+INSERT 0 5
+
+assignment1=# CREATE VIEW A2C1V1 AS SELECT s.s_name, SUM(e.amount) as total_expenses FROM Salesman s, Trip t, Expense e WHERE s.sno = t.sno AND t.tno = e.tno AND s.s_name = 'Mr.Pawar' GROUP BY s.s_name;
+CREATE VIEW
+
+assignment1=# select * from A2C1V1;
+  s_name  | total_expenses 
+----------+----------------
+ Mr.Pawar |     ₹20,000.00
+(1 row)
+
+assignment1=# CREATE VIEW A2C1V2 AS SELECT d.dept_name FROM Dept d, Salesman s WHERE d.deptno = s.deptno AND s.sno NOT IN(SELECT DISTINCT t.sno FROM Trip t);
+CREATE VIEW
+
+assignment1=# select * from A2C1V2;
+      dept_name       
+----------------------
+ Finance             
+(1 row)
+
+assignment1=# CREATE VIEW A2C1V3 AS SELECT s.s_name, COUNT(*) as trip_count FROM Salesman s, Trip t WHERE s.sno = t.sno AND s.s_name = 'Mr. Kale' AND t.from_city = 'Pune' AND t.to_city = 'Mumbai' AND EXTRACT(MONTH FROM t.departure_date) = 6 GROUP BY s.s_name;
+CREATE VIEW
+
+assignment1=# select * from A2C1V3;
+  s_name  | trip_count 
+----------+------------
+ Mr. Kale |          2
+(1 row)
+
+
+
+
+
+------------------------------------------------------ set c 2 -------------------------------------------------------------
+
+
+assignment1=# CREATE VIEW A2C2V1 AS SELECT s.* FROM Stores s, Warehouses w WHERE s.wid = w.wid AND w.wname = 'Spare Parts' AND w.city = 'Pune';
+CREATE VIEW
+
+assignment1=# select * from A2C2V1;
+ sid |      store_name      |    location_city     | wid 
+-----+----------------------+----------------------+-----
+   2 | Electronics Store    | Pune                 |   2
+(1 row)
+
+assignment1=# CREATE VIEW A2C2V2 AS SELECT c.* FROM Customers c, Orders o WHERE c.cno = o.cno AND o.odate = '2015-11-12';
+CREATE VIEW
+
+assignment1=# select * from A2C2V2;
+ cno |                       cname                        |    addr     |       cu_city        
+-----+----------------------------------------------------+-------------+----------------------
+   1 | Mr.Patil                                           | 123 Main St | Nagar               
+   2 | Mr.Baviskar                                        | 456 Elm St  | Pune                
+   3 | Mr.Shinde                                          | 789 Pine St | Nagar               
+(3 rows)
+
+assignment1=# CREATE VIEW A2C2V3 AS SELECT c.city, COUNT(w.wid) AS warehouse_count FROM Cities c, Warehouses w WHERE c.city = w.location GROUP BY c.city;
+CREATE VIEW
+
+assignment1=# select * from A2C2V3;
+ city | warehouse_count 
+------+-----------------
+(0 rows)
