@@ -1,5 +1,0 @@
-[command to run .sql file]
-\i '/home/mitacsc/sybca07/dbms/assignment 3/setA1ii.sql'
-
-[command to execute function]
-select function_name();
